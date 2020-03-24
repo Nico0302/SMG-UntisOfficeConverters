@@ -8,7 +8,7 @@ def to_ascii(string):
     for i in string:
         if i in UMLAUT_TRANSLATION:
             a = a.replace(i, UMLAUT_TRANSLATION[i])
-    return a
+    return unidecode(a)
 
 def to_grade_number(gardestring):
     return int(sub('[^0-9]', '', gardestring))
