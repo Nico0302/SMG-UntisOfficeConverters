@@ -1,10 +1,14 @@
 from unidecode import unidecode
 from re import sub
 
-UMLAUT_TRANSLATION = str.maketrans({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' })
+UMLAUT_TRANSLATION = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' }
 
 def to_ascii(string):
-    return unidecode(string.translate(UMLAUT_TRANSLATION))
+    a = string  # a new string to store the replaced string
+    for i in string:
+        if i in UMLAUT_TRANSLATION:
+            a = a.replace(i, UMLAUT_TRANSLATION[i])
+    return a
 
 def to_grade_number(gardestring):
     return int(sub('[^0-9]', '', gardestring))
