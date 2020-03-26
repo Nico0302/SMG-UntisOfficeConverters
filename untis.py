@@ -41,11 +41,9 @@ class Course:
         return str(abi) + '-' + self.course
 
 class Lesson(Course):
-    def __init__(self, course, grade, teacher, startdate, enddate):
+    def __init__(self, course, grade, teacher):
         super(Lesson, self).__init__(course, grade)
         self.teacher = teacher
-        self.startdate = startdate
-        self.enddate = enddate
 
 class LessonReader(GradeValidationReader):
     """ GPU002.TXT (Unterricht) """
@@ -63,24 +61,21 @@ class LessonReader(GradeValidationReader):
         return Lesson(
             course=row[self.COURSE_INDEX],
             grade=to_grade_number(row[self.GRADE_INDEX]),
-            teacher=row[self.TEACHER_INDEX],
-            startdate=row[self.STARTDATE_INDEX],
-            enddate=row[self.ENDDATE_INDEX]
+            teacher=row[self.TEACHER_INDEX]
         )
 
 class Student:
-    def __init__(self, shortname, sirname, firstname, grade, birthdate):
+    def __init__(self, shortname, sirname, firstname, grade):
         self.shortname = shortname
         self.sirname = sirname
         self.firstname = firstname
         self.grade = grade
-        self.birthdate = birthdate
 
     def get_username(self):
         return to_ascii(
-            self.firstname.split(' ', 1)[0].lower() + 
+            self.firstname.split(' ')[0].lower() + 
             '.' + 
-            self.sirname.split(' ', 1)[0].lower()
+            self.sirname.split(' ')[0].lower()
         ).lower()
 
 class StudentReader(GradeValidationReader):
@@ -100,8 +95,7 @@ class StudentReader(GradeValidationReader):
                 shortname=row[self.SHORTNAME_INDEX],
                 sirname=row[self.SIRNAME_INDEX],
                 firstname=row[self.FIRSTNAME_INDEX],
-                grade=to_grade_number(row[self.GRADE_INDEX]),
-                birthdate=row[self.BIRTHDATE_INDEX]
+                grade=to_grade_number(row[self.GRADE_INDEX])
             )
 
 class Teacher:

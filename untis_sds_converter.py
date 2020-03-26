@@ -1,7 +1,4 @@
-import untis
-import sds
-import os
-import errno
+import untis, sds, os, errno
 
 SCHOOLNAME = 'Sebastian-Münster-Gymnasium'
 SCHOOLYEAR = 2020 # Jahreszahl des zweiten Halbjahres
@@ -25,40 +22,47 @@ def open_output_write(filename):
     
     return open(os.path.dirname(OUTPUT_DIRECTORY) + '/' + filename, 'w', encoding=OUTPUT_ENCODING, newline='')
 
-lesson_file = open(LESSON_FILENAME, encoding=DIF_ENCODING, newline='')
-student_file = open(STUDENT_FILENAME,encoding=DIF_ENCODING, newline='')
-teacher_file = open(TEACHER_FILENAME, encoding=DIF_ENCODING, newline='')
-enrollment_file = open(ENROLLMENT_FILENAME, encoding=DIF_ENCODING, newline='')
+def open_input_read(filename):
+    return open(LESSON_FILENAME, encoding=DIF_ENCODING, newline='')
 
-lesson_reader = untis.LessonReader(lesson_file, delimiter=DIF_DELIMITER)
-student_reader = untis.StudentReader(student_file, delimiter=DIF_DELIMITER)
-teacher_reader = untis.TeacherReader(teacher_file, delimiter=DIF_DELIMITER)
-enrollment_reader = untis.StudentEnrollmentReader(enrollment_file, delimiter=DIF_DELIMITER)
+# lessons (GPU002.TXT)
+with open_input_read(LESSON_FILENAME) as lesson_file:
+    lesson_reader = untis.LessonReader(lesson_file, delimiter=DIF_DELIMITER)
+    lesson_reader.populate(**GRADE_FILTER)
 
-# populate data from files
-lesson_reader.populate(**GRADE_FILTER)
-student_reader.populate(**GRADE_FILTER)
-teacher_reader.populate()
-enrollment_reader.populate(**GRADE_FILTER)
+    with open_output_write(sds.SECTION_FILENAME) as section_file:
+        sds.Section(section_file, lesson_reader.data).generate(schoolyear=SCHOOLYEAR)
 
-# close filestreams
-lesson_file.close()
-student_file.close()
-teacher_file.close()
-enrollment_file.close()
+    with open_output_write(sds.TEACHER_ROSTER_FILENAME) as roster_file:
+        sds.TeacherRoaster(roster_file, lesson_reader.data).generate(schoolyear=SCHOOLYEAR)
 
-# open SDS CSV-file writers
-school_writer = sds.School(open_output_write(sds.SCHOOL_FILENAME), SCHOOLNAME)
-section_writer = sds.Section(open_output_write(sds.SECTION_FILENAME), lesson_reader.data)
-student_writer = sds.Student(open_output_write(sds.STUDENT_FILENAME), student_reader.data)
-teacher_writer = sds.Teacher(open_output_write(sds.TEACHER_FILENAME), teacher_reader.data)
-enrollment_writer = sds.StudentEnrollment(open_output_write(sds.STUDENT_ENROLLMENT_FILENAME), enrollment_reader.data)
-roster_writer = sds.TeacherRoaster(open_output_write(sds.TEACHER_ROSTER_FILENAME), lesson_reader.data)
+# students (GPU010.TXT)
+with open_input_read(STUDENT_FILENAME) as student_file:
+    student_reader = untis.StudentReader(student_file, delimiter=DIF_DELIMITER)
+    student_reader.populate(**GRADE_FILTER)
 
-# generate SDS csv-files
-school_writer.generate()
-section_writer.generate(schoolyear=SCHOOLYEAR)
-student_writer.generate()
-teacher_writer.generate()
-enrollment_writer.generate(schoolyear=SCHOOLYEAR)
-roster_writer.generate(schoolyear=SCHOOLYEAR)
+    with open_output_write(sds.STUDENT_FILENAME) as student_file:
+        sds.Student(student_file, student_reader.data).generate()
+
+# teachers (GPU004.TXT)
+with open_input_read(TEACHER_FILENAME) as teacher_file:
+    teacher_reader = untis.TeacherReader(teacher_file, delimiter=DIF_DELIMITER)
+    teacher_reader.populate()
+
+    with open_output_write(sds.TEACHER_FILENAME) as teacher_file:
+        sds.Teacher(teacher_file, teacher_reader.data).generate()
+
+# student enrollment (GPU015.TXT)
+with open_input_read(ENROLLMENT_FILENAME) as enrollment_file:
+    enrollment_reader = untis.StudentEnrollmentReader(enrollment_file, delimiter=DIF_DELIMITER)
+    enrollment_reader.populate(**GRADE_FILTER)
+
+    with open_output_write(sds.STUDENT_ENROLLMENT_FILENAME) as enrollment_file:
+        sds.StudentEnrollment(enrollment_file, enrollment_reader.data).generate
+
+# SDS school csv
+with open_output_write(sds.SCHOOL_FILENAME) as school_file:
+    sds.School(school_file, SCHOOLNAME)
+
+print('Dateien erfolgreich konvertiert')
+print(OUTPUT_DIRECTORY)

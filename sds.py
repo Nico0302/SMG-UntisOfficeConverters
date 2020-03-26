@@ -42,19 +42,17 @@ class Section(Writer):
         return [
             sourcerow.get_id(schoolyear),
             SCHOOL_ID,
-            sourcerow.course.replace('_', ' '),
-            to_sds_date(sourcerow.startdate),
-            to_sds_date(sourcerow.enddate)
+            sourcerow.course.replace('_', ' ') + ' ' + str(sourcerow.grade)
         ]
 
 class Student(Writer):
-    HEADERS = ['SIS ID', 'School SIS ID', 'Username', 'Grade', 'Birthdate']
+    HEADERS = ['SIS ID', 'School SIS ID', 'Username', 'Grade']
 
     def __init__(self, csvfile, datascource):
         super(Student, self).__init__(csvfile, datascource)
 
     def row_iterator(self, sourcerow):
-        return [sourcerow.shortname, SCHOOL_ID, sourcerow.get_username(), sourcerow.grade, to_sds_date(sourcerow.birthdate)]
+        return [sourcerow.shortname, SCHOOL_ID, sourcerow.get_username(), sourcerow.grade]
 
 class Teacher(Writer):
     HEADERS = ['SIS ID', 'School SIS ID', 'Username']
