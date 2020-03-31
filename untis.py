@@ -24,10 +24,19 @@ class GradeValidationReader(Reader):
     def __init__(self, diffile, delimiter=',', quotechar='"'):
         super().__init__(diffile, delimiter=delimiter, quotechar=quotechar)
 
-    def row_validator(self, row, min_grade=5, max_grade=13):
+    def row_validator(self, row, grade_name=None, min_grade=None, max_grade=None):
         try:
-            grade_number = to_grade_number(row[self.GRADE_INDEX])
-            return grade_number >= min_grade and grade_number <= max_grade
+            if (grade_name is not None) and (grade_name != row[self.GRADE_INDEX]):
+                return False
+
+            if (min_grade is not None) or (max_grade is not None):
+                grade_number = to_grade_number(row[self.GRADE_INDEX])
+                if (min_grade is not None) and (grade_number < min_grade):
+                    return False
+                if (max_grade is not None) and (grade_number > max_grade):
+                    return False
+
+            return True
         except ValueError:
             return False
 

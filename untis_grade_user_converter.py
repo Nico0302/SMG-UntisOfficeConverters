@@ -1,3 +1,5 @@
+""" Generieren von Nutzer CSV-Tabellen zum import der Oberstufe in Office 365. """
+
 import csv, untis
 
 EXISTING_USERS_FILENAME = 'users_export.csv'
