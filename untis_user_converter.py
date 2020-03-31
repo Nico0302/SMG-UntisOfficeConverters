@@ -15,36 +15,41 @@ OFFICE_TABLE_HEADER = ['User Name', 'First Name', 'Last Name', 'Display Name', '
 
 existing_users = []
 
-existing_reader = csv.reader(open(EXISTING_USERS_FILENAME, encoding='utf-8', newline=''), delimiter=',', quoting=csv.QUOTE_NONE)
-for row in existing_reader:
-    existing_users.append(row[30])
+with open(EXISTING_USERS_FILENAME, encoding='utf-8', newline='') as users_file:
+    existing_reader = csv.reader(users_file, delimiter=',', quoting=csv.QUOTE_NONE)
+    for row in existing_reader:
+        existing_users.append(row[30])
 
-student_reader = untis.StudentReader(open(STUDENT_FILENAME, encoding=DIF_ENCODING, newline=''), delimiter=DIF_DELIMITER)
-student_reader.populate(**GRADE_FILTER)
-student_writer = csv.writer(open(STUDENT_OUTPUT_FILENAME, 'w', encoding='utf-8', newline=''), delimiter=',', quoting=csv.QUOTE_NONE)
-student_writer.writerow(OFFICE_TABLE_HEADER)
-for student in student_reader.data:
-    username = student.get_username()
-    email = '{0}@{1}'.format(username, STUDENT_DOMAIN)
-    if email not in existing_users:
-        student_writer.writerow([
-            email,
-            student.firstname,
-            student.sirname,
-            student.firstname.split(' ')[0] + ' ' + student.sirname
-        ])
+with open(STUDENT_FILENAME, encoding=DIF_ENCODING, newline='') as student_file:
+    student_reader = untis.StudentReader(student_file, delimiter=DIF_DELIMITER)
+    student_reader.populate(**GRADE_FILTER)
+    with open(STUDENT_OUTPUT_FILENAME, 'w', encoding='utf-8', newline='') as student_output:
+        student_writer = csv.writer(student_output, delimiter=',', quoting=csv.QUOTE_NONE)
+        student_writer.writerow(OFFICE_TABLE_HEADER)
+        for student in student_reader.data:
+            username = student.get_username()
+            email = '{0}@{1}'.format(username, STUDENT_DOMAIN)
+            if email not in existing_users:
+                student_writer.writerow([
+                    email,
+                    student.firstname,
+                    student.sirname,
+                    student.firstname.split(' ')[0] + ' ' + student.sirname
+                ])
 
-teacher_reader = untis.TeacherReader(open(TEACHER_FILENAME, encoding=DIF_ENCODING, newline=''), delimiter=DIF_DELIMITER)
-teacher_reader.populate(**GRADE_FILTER)
-teacher_writer = csv.writer(open(TEACHER_OUTPUT_FILENAME, 'w', encoding='utf-8', newline=''), delimiter=',', quoting=csv.QUOTE_NONE)
-teacher_writer.writerow(OFFICE_TABLE_HEADER)
-for teacher in teacher_reader.data:
-    username = teacher.get_username()
-    email = '{0}@{1}'.format(username, TEACHER_DOMAIN)
-    if email not in existing_users:
-        teacher_writer.writerow([
-            email,
-            teacher.firstname,
-            teacher.sirname,
-            teacher.firstname.split(' ')[0] + ' ' + teacher.sirname
-        ])
+with open(TEACHER_FILENAME, encoding=DIF_ENCODING, newline='') as teacher_file:
+    teacher_reader = untis.TeacherReader(teacher_file, delimiter=DIF_DELIMITER)
+    teacher_reader.populate(**GRADE_FILTER)
+    with open(TEACHER_OUTPUT_FILENAME, 'w', encoding='utf-8', newline='') as teacher_output:
+        teacher_writer = csv.writer(teacher_output, delimiter=',', quoting=csv.QUOTE_NONE)
+        teacher_writer.writerow(OFFICE_TABLE_HEADER)
+        for teacher in teacher_reader.data:
+            username = teacher.get_username()
+            email = '{0}@{1}'.format(username, TEACHER_DOMAIN)
+            if email not in existing_users:
+                teacher_writer.writerow([
+                    email,
+                    teacher.firstname,
+                    teacher.sirname,
+                    teacher.firstname.split(' ')[0] + ' ' + teacher.sirname
+                ])

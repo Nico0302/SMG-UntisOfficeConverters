@@ -14,7 +14,7 @@ class Writer:
     HEADERS = []
 
     def __init__(self, csvfile, datascource):
-        self.csvwriter = csv.writer(csvfile, delimiter=';', quotechar='"')
+        self.csvwriter = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
         self.datasource = datascource
 
     def row_iterator(self, sourcerow):
@@ -33,7 +33,7 @@ class School(Writer):
         super(School, self).__init__(csvfile, [[SCHOOL_ID, schoolname]])
 
 class Section(Writer):
-    HEADERS = ['SIS ID', 'School SIS ID', 'Section Name', 'Term StartDate', 'Term EndDate']
+    HEADERS = ['SIS ID', 'School SIS ID', 'Section Name']
 
     def __init__(self, csvfile, datascource):
         super(Section, self).__init__(csvfile, datascource)
@@ -42,7 +42,7 @@ class Section(Writer):
         return [
             sourcerow.get_id(schoolyear),
             SCHOOL_ID,
-            sourcerow.course.replace('_', ' ') + ' ' + str(sourcerow.grade)
+            sourcerow.course + ' ' + str(sourcerow.grade)
         ]
 
 class Student(Writer):

@@ -23,7 +23,7 @@ def open_output_write(filename):
     return open(os.path.dirname(OUTPUT_DIRECTORY) + '/' + filename, 'w', encoding=OUTPUT_ENCODING, newline='')
 
 def open_input_read(filename):
-    return open(LESSON_FILENAME, encoding=DIF_ENCODING, newline='')
+    return open(filename, encoding=DIF_ENCODING, newline='')
 
 # lessons (GPU002.TXT)
 with open_input_read(LESSON_FILENAME) as lesson_file:
@@ -58,11 +58,11 @@ with open_input_read(ENROLLMENT_FILENAME) as enrollment_file:
     enrollment_reader.populate(**GRADE_FILTER)
 
     with open_output_write(sds.STUDENT_ENROLLMENT_FILENAME) as enrollment_file:
-        sds.StudentEnrollment(enrollment_file, enrollment_reader.data).generate
+        sds.StudentEnrollment(enrollment_file, enrollment_reader.data).generate()
 
 # SDS school csv
 with open_output_write(sds.SCHOOL_FILENAME) as school_file:
-    sds.School(school_file, SCHOOLNAME)
+    sds.School(school_file, SCHOOLNAME).generate()
 
 print('Dateien erfolgreich konvertiert')
 print(OUTPUT_DIRECTORY)

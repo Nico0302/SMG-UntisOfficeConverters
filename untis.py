@@ -1,4 +1,4 @@
-import csv
+import csv, re
 from utils import to_ascii, to_grade_number
 
 class Reader:
@@ -73,9 +73,9 @@ class Student:
 
     def get_username(self):
         return to_ascii(
-            self.firstname.split(' ')[0].lower() + 
+            re.sub(r'\w\. ', '', self.firstname).split(' ')[0].lower() + 
             '.' + 
-            self.sirname.split(' ')[0].lower()
+            re.sub(r'\w\. ', '', self.sirname.replace('von ', '')).split(' ')[0].lower()
         ).lower()
 
 class StudentReader(GradeValidationReader):
@@ -92,7 +92,7 @@ class StudentReader(GradeValidationReader):
 
     def row_iterator(self, row):
         return Student(
-                shortname=row[self.SHORTNAME_INDEX],
+                shortname=to_ascii(row[self.SHORTNAME_INDEX]),
                 sirname=row[self.SIRNAME_INDEX],
                 firstname=row[self.FIRSTNAME_INDEX],
                 grade=to_grade_number(row[self.GRADE_INDEX])
@@ -142,9 +142,12 @@ class StudentEnrollmentReader(GradeValidationReader):
     def __init__(self, diffile, delimiter=',', quotechar='"'):
         super().__init__(diffile, delimiter=delimiter, quotechar=quotechar)
 
+    def row_validator(self, row, *args, **kwargs):
+        return row[self.COURSE_INDEX] != '' and super().row_validator(row, *args, **kwargs)
+
     def row_iterator(self, row, *args, **kwargs):
         return StudentEnrollment(
-            student=row[self.STUDENT_INDEX],
+            student=to_ascii(row[self.STUDENT_INDEX]),
             course=row[self.COURSE_INDEX],
             grade=to_grade_number(row[self.GRADE_INDEX])
         )
